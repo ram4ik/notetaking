@@ -9,13 +9,50 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
-
+    
+    func addNoteEntity() {
+        let newNoteEntry = NoteEntry(context: container.viewContext)
+        newNoteEntry.createdAt = Date()
+        newNoteEntry.updatedAt = Date()
+        newNoteEntry.title = "Untitled"
+        newNoteEntry.content = "TBD"
+        
+        save()
+    }
+    
+    func updateNoteEntry(noteEntry: NoteEntry, title: String, content: String) {
+        noteEntry.content = content
+        noteEntry.title = title
+        noteEntry.updatedAt = Date()
+        
+        save()
+    }
+    
+    func deleteNoteEntry(noteEntry: NoteEntry) {
+        container.viewContext.delete(noteEntry)
+        
+        save()
+    }
+    
+    private func save() {
+        let viewContext = container.viewContext
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+    }
+    
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+            let newNoteEntry = NoteEntry(context: viewContext)
+            newNoteEntry.createdAt = Date()
+            newNoteEntry.updatedAt = Date()
+            newNoteEntry.content = "(Content)"
+            newNoteEntry.title = "(title)"
         }
         do {
             try viewContext.save()
